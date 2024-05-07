@@ -1,0 +1,1 @@
+.. |XIE2017| replace:: Xie and Xiao, *J. Comput. Phys.* (**349**), 2017
