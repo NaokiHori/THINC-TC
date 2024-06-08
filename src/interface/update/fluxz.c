@@ -1,4 +1,3 @@
-#if NDIMS == 3
 #include "array.h"
 #include "domain.h"
 #include "halo.h"
@@ -63,7 +62,7 @@ int compute_flux_z(
       } \
     } \
   }
-  // evaluate flux | 21
+  // evaluate flux
   BEGIN
     const double lvel = UZ(i, j, k);
     double * flux = &FLUXZ(i, j, k);
@@ -88,4 +87,3 @@ int compute_flux_z(
   update_boundaries(domain, &interface->fluxz);
   return 0;
 }
-#endif

@@ -8,37 +8,23 @@
 #include "fileio.h"
 #include "array_macros/fluid/ux.h"
 #include "array_macros/fluid/uy.h"
-#if NDIMS == 3
 #include "array_macros/fluid/uz.h"
-#endif
 #include "array_macros/fluid/p.h"
 #include "array_macros/fluid/psi.h"
 #include "array_macros/fluid/lxx.h"
 #include "array_macros/fluid/lyx0.h"
 #include "array_macros/fluid/lyx1.h"
-#if NDIMS == 3
 #include "array_macros/fluid/lzx.h"
-#endif
 #include "array_macros/fluid/lxy.h"
 #include "array_macros/fluid/lyy0.h"
 #include "array_macros/fluid/lyy1.h"
-#if NDIMS == 3
 #include "array_macros/fluid/lzy.h"
-#endif
-#if NDIMS == 3
 #include "array_macros/fluid/lxz.h"
-#endif
-#if NDIMS == 3
 #include "array_macros/fluid/lyz.h"
-#endif
-#if NDIMS == 3
 #include "array_macros/fluid/lzz.h"
-#endif
 #include "array_macros/fluid/srcux.h"
 #include "array_macros/fluid/srcuy.h"
-#if NDIMS == 3
 #include "array_macros/fluid/srcuz.h"
-#endif
 
 /**
  * @brief allocate members
@@ -53,9 +39,7 @@ static int allocate(
   // velocity
   if(0 != array.prepare(domain, UX_NADDS, sizeof(double), &fluid->ux )) return 1;
   if(0 != array.prepare(domain, UY_NADDS, sizeof(double), &fluid->uy )) return 1;
-#if NDIMS == 3
   if(0 != array.prepare(domain, UZ_NADDS, sizeof(double), &fluid->uz )) return 1;
-#endif
   // pressure and scalar potential
   if(0 != array.prepare(domain, P_NADDS,   sizeof(double), &fluid->p  )) return 1;
   if(0 != array.prepare(domain, PSI_NADDS, sizeof(double), &fluid->psi)) return 1;
@@ -63,31 +47,19 @@ static int allocate(
   if(0 != array.prepare(domain, LXX_NADDS,  sizeof(double), &fluid->lxx )) return 1;
   if(0 != array.prepare(domain, LYX0_NADDS, sizeof(double), &fluid->lyx0)) return 1;
   if(0 != array.prepare(domain, LYX1_NADDS, sizeof(double), &fluid->lyx1)) return 1;
-#if NDIMS == 3
   if(0 != array.prepare(domain, LZX_NADDS,  sizeof(double), &fluid->lzx )) return 1;
-#endif
   if(0 != array.prepare(domain, LXY_NADDS,  sizeof(double), &fluid->lxy )) return 1;
   if(0 != array.prepare(domain, LYY0_NADDS, sizeof(double), &fluid->lyy0)) return 1;
   if(0 != array.prepare(domain, LYY1_NADDS, sizeof(double), &fluid->lyy1)) return 1;
-#if NDIMS == 3
   if(0 != array.prepare(domain, LZY_NADDS,  sizeof(double), &fluid->lzy )) return 1;
-#endif
-#if NDIMS == 3
   if(0 != array.prepare(domain, LXZ_NADDS,  sizeof(double), &fluid->lxz )) return 1;
-#endif
-#if NDIMS == 3
   if(0 != array.prepare(domain, LYZ_NADDS,  sizeof(double), &fluid->lyz )) return 1;
-#endif
-#if NDIMS == 3
   if(0 != array.prepare(domain, LZZ_NADDS,  sizeof(double), &fluid->lzz )) return 1;
-#endif
   // Runge-Kutta source terms
   for(size_t n = 0; n < 3; n++){
     if(0 != array.prepare(domain, SRCUX_NADDS, sizeof(double), &fluid->srcux[n])) return 1;
     if(0 != array.prepare(domain, SRCUY_NADDS, sizeof(double), &fluid->srcuy[n])) return 1;
-#if NDIMS == 3
     if(0 != array.prepare(domain, SRCUZ_NADDS, sizeof(double), &fluid->srcuz[n])) return 1;
-#endif
   }
   return 0;
 }
@@ -105,9 +77,7 @@ static void report(
     printf("\tDiffusivity: % .7e\n", fluid->diffusivity);
     printf("\tdiffusive treatment in x: %s\n", param_implicit_x ? "implicit" : "explicit");
     printf("\tdiffusive treatment in y: %s\n", param_implicit_y ? "implicit" : "explicit");
-#if NDIMS == 3
     printf("\tdiffusive treatment in z: %s\n", param_implicit_z ? "implicit" : "explicit");
-#endif
     fflush(stdout);
   }
 }
@@ -130,16 +100,12 @@ int fluid_init(
   // load flow fields
   if(0 != array.load(domain, dirname_ic, "ux", fileio.npy_double, &fluid->ux)) return 1;
   if(0 != array.load(domain, dirname_ic, "uy", fileio.npy_double, &fluid->uy)) return 1;
-#if NDIMS == 3
   if(0 != array.load(domain, dirname_ic, "uz", fileio.npy_double, &fluid->uz)) return 1;
-#endif
   if(0 != array.load(domain, dirname_ic,  "p", fileio.npy_double, &fluid-> p)) return 1;
   // impose boundary conditions and communicate halo cells
   if(0 != fluid_update_boundaries_ux(domain, &fluid->ux)) return 1;
   if(0 != fluid_update_boundaries_uy(domain, &fluid->uy)) return 1;
-#if NDIMS == 3
   if(0 != fluid_update_boundaries_uz(domain, &fluid->uz)) return 1;
-#endif
   if(0 != fluid_update_boundaries_p(domain, &fluid->p)) return 1;
   // compute diffusivity
   if(0 != config.get_double("Re", &fluid->Re)) return 1;
