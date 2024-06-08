@@ -42,11 +42,6 @@ int fluid_compute_rhs(
   if(0 != reset_srcs(fluid->srcuy + rk_a, fluid->srcuy + rk_b, fluid->srcuy + rk_g)){
     return 1;
   }
-#if NDIMS == 3
-  if(0 != reset_srcs(fluid->srcuz + rk_a, fluid->srcuz + rk_b, fluid->srcuz + rk_g)){
-    return 1;
-  }
-#endif
   // pre-calculate velocity-gradient tensor components
   if(0 != compute_lxx(domain, fluid)){
     return 1;
@@ -54,37 +49,12 @@ int fluid_compute_rhs(
   if(0 != compute_lxy(domain, fluid)){
     return 1;
   }
-#if NDIMS == 3
-  if(0 != compute_lxz(domain, fluid)){
-    return 1;
-  }
-#endif
   if(0 != compute_lyx(domain, fluid)){
     return 1;
   }
   if(0 != compute_lyy(domain, fluid)){
     return 1;
   }
-#if NDIMS == 3
-  if(0 != compute_lyz(domain, fluid)){
-    return 1;
-  }
-#endif
-#if NDIMS == 3
-  if(0 != compute_lzx(domain, fluid)){
-    return 1;
-  }
-#endif
-#if NDIMS == 3
-  if(0 != compute_lzy(domain, fluid)){
-    return 1;
-  }
-#endif
-#if NDIMS == 3
-  if(0 != compute_lzz(domain, fluid)){
-    return 1;
-  }
-#endif
   // update buffers
   if(0 != compute_rhs_ux(domain, fluid, interface)){
     return 1;
@@ -92,11 +62,6 @@ int fluid_compute_rhs(
   if(0 != compute_rhs_uy(domain, fluid, interface)){
     return 1;
   }
-#if NDIMS == 3
-  if(0 != compute_rhs_uz(domain, fluid, interface)){
-    return 1;
-  }
-#endif
   return 0;
 }
 

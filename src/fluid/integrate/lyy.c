@@ -18,15 +18,11 @@ static int compute_lyy0(
 ){
   const int isize = domain->mysizes[0];
   const int jsize = domain->mysizes[1];
-#if NDIMS == 3
-  const int ksize = domain->mysizes[2];
-#endif
   const double * restrict hyxc = domain->hyxc;
   const double * restrict uy = fluid->uy.data;
   array_t * lyy0_array = &fluid->lyy0;
   double * restrict lyy0 = lyy0_array->data;
-#if NDIMS == 2
-  // compute dominant term of lyy | 9
+  // compute dominant term of lyy
   for(int j = 1; j <= jsize; j++){
     for(int i = 1; i <= isize; i++){
       const double hy = HYXC(i  );
@@ -36,34 +32,12 @@ static int compute_lyy0(
       );
     }
   }
-#else
-  // compute dominant term of lyy | 11
-  for(int k = 1; k <= ksize; k++){
-    for(int j = 1; j <= jsize; j++){
-      for(int i = 1; i <= isize; i++){
-        const double hy = HYXC(i  );
-        LYY0(i, j, k) = 1. / hy * (
-            - UY(i  , j  , k  )
-            + UY(i  , j+1, k  )
-        );
-      }
-    }
-  }
-#endif
   static MPI_Datatype dtypes[NDIMS - 1] = {
     MPI_DOUBLE,
-#if NDIMS == 3
-    MPI_DOUBLE,
-#endif
   };
   if(0 != halo_communicate_in_y(domain, dtypes + 0, lyy0_array)){
     return 1;
   }
-#if NDIMS == 3
-  if(0 != halo_communicate_in_z(domain, dtypes + 1, lyy0_array)){
-    return 1;
-  }
-#endif
   return 0;
 }
 
@@ -73,17 +47,13 @@ static int compute_lyy1(
 ){
   const int isize = domain->mysizes[0];
   const int jsize = domain->mysizes[1];
-#if NDIMS == 3
-  const int ksize = domain->mysizes[2];
-#endif
   const double * restrict hxxf = domain->hxxf;
   const double * restrict jdxf = domain->jdxf;
   const double * restrict jdxc = domain->jdxc;
   const double * restrict ux = fluid->ux.data;
   array_t * lyy1_array = &fluid->lyy1;
   double * restrict lyy1 = lyy1_array->data;
-#if NDIMS == 2
-  // compute non-dominant term of lyy | 16
+  // compute non-dominant term of lyy
   for(int j = 1; j <= jsize; j++){
     for(int i = 1; i <= isize; i++){
       const double hx_xm = HXXF(i  );
@@ -100,41 +70,12 @@ static int compute_lyy1(
       );
     }
   }
-#else
-  // compute non-dominant term of lyy | 18
-  for(int k = 1; k <= ksize; k++){
-    for(int j = 1; j <= jsize; j++){
-      for(int i = 1; i <= isize; i++){
-        const double hx_xm = HXXF(i  );
-        const double hx_xp = HXXF(i+1);
-        const double jd_xm = JDXF(i  );
-        const double jd_x0 = JDXC(i  );
-        const double jd_xp = JDXF(i+1);
-        const double jdhx_xm = jd_xm / hx_xm;
-        const double jdhx_xp = jd_xp / hx_xp;
-        const double djdhx = - jdhx_xm + jdhx_xp;
-        LYY1(i, j, k) = 1. / jd_x0 * djdhx * (
-            + 0.5 * UX(i  , j  , k  )
-            + 0.5 * UX(i+1, j  , k  )
-        );
-      }
-    }
-  }
-#endif
   static MPI_Datatype dtypes[NDIMS - 1] = {
     MPI_DOUBLE,
-#if NDIMS == 3
-    MPI_DOUBLE,
-#endif
   };
   if(0 != halo_communicate_in_y(domain, dtypes + 0, lyy1_array)){
     return 1;
   }
-#if NDIMS == 3
-  if(0 != halo_communicate_in_z(domain, dtypes + 1, lyy1_array)){
-    return 1;
-  }
-#endif
   return 0;
 }
 
